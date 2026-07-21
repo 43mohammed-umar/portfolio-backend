@@ -1,6 +1,8 @@
 package com.umar.portfolio.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,6 +14,7 @@ import com.umar.portfolio.dto.ContactRequest;
 public class ContactService {
 
 	private final JavaMailSender mailSender;
+	private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
 
 	public ContactService(JavaMailSender mailSender) {
 	    this.mailSender = mailSender;
@@ -20,12 +23,15 @@ public class ContactService {
     @Value("${portfolio.contact.receiver-email}")
     private String receiverEmail;
 
-    public void sendContactEmail(ContactRequest request) {
+    public void sendContactEmail(ContactRequest request)
+    {
+
+        logger.info("Contact request received from: {}", request.getEmail());
 
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(receiverEmail);
-        message.setSubject("Boss You Got This Mail Is  : " + request.getSubject());
+        message.setSubject("New Portfolio Contact : " + request.getSubject());
 
         message.setText(
                 "Name : " + request.getFullName() + "\n\n" +
@@ -35,6 +41,10 @@ public class ContactService {
                 request.getMessage()
         );
 
+        logger.info("Sending email...");
+
         mailSender.send(message);
+
+        logger.info("Email sent successfully to {}", receiverEmail);
     }
 }
